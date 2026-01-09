@@ -10,99 +10,193 @@ class InspectionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Inspection Detail")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Hero(
-              tag: 'photo_${inspection.id}',
-              child: Container(
-                height: 250,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  image: DecorationImage(
-                    image: FileImage(File(inspection.photos.first)),
-                    fit: BoxFit.cover,
-                  ),
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        physics: const ClampingScrollPhysics(),
+        slivers: [
+          // Collapsible Appbar Section - Image collapsible
+          SliverAppBar(
+            expandedHeight: 300.0,
+            pinned: true,
+            stretch: false,
+            backgroundColor: primaryColor,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundColor: Colors.black.withValues(alpha: .4),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            Text(
-              inspection.propertyName,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 16,
-                  color: Colors.grey,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  "${inspection.latitude.toStringAsFixed(4)}, ${inspection.longitude.toStringAsFixed(4)}",
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-            const Divider(height: 40),
-            const Text(
-              "Notes",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              inspection.description,
-              style: TextStyle(color: Colors.grey.shade700, height: 1.5),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              "Gallery",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: inspection.photos.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (_, index) => ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Hero(
+                tag: 'photo_${inspection.id}',
                 child: Image.file(
-                  File(inspection.photos[index]),
+                  File(inspection.photos.first),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: const BorderSide(color: Colors.red),
-                  padding: const EdgeInsets.all(16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+          ),
+          // Body Section using Sliver
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32),
                 ),
-                onPressed: () => _confirmDelete(context),
-                icon: const Icon(Icons.delete_outline),
-                label: const Text("DELETE RECORD"),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withValues(alpha: .1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          inspection.rating.toUpperCase(),
+                          style: TextStyle(
+                            color: primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        inspection.dateCreated.substring(0, 10),
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  Text(
+                    inspection.propertyName,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.redAccent,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "${inspection.latitude.toStringAsFixed(4)}, ${inspection.longitude.toStringAsFixed(4)}",
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 25),
+                    child: Divider(color: Color(0xFFF5F5F5), thickness: 2),
+                  ),
+
+                  const Text(
+                    "Inspector Notes",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    inspection.description,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade800,
+                      height: 1.6,
+                    ),
+                  ),
+
+                  const SizedBox(height: 35),
+
+                  const Text(
+                    "Evidence Gallery",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 15),
+                  // Use GridView to display photos in nice layout 2 column
+                  GridView.builder(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: inspection.photos.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 1,
+                        ),
+                    itemBuilder: (_, i) => ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.file(
+                        File(inspection.photos[i]),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 50),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => _confirmDelete(context),
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text(
+                        "DELETE INSPECTION",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -111,12 +205,15 @@ class InspectionDetailScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text("Delete Record?"),
-        content: const Text("This action cannot be undone."),
+        content: const Text(
+          "This action will permanently remove this inspection data.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancel"),
+            child: const Text("Back"),
           ),
           TextButton(
             onPressed: () async {
@@ -124,8 +221,17 @@ class InspectionDetailScreen extends StatelessWidget {
               if (!context.mounted) return;
               Navigator.pop(ctx);
               Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Inspection Deleted."),
+                  backgroundColor: Colors.red,
+                ),
+              );
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text(
+              "Confirm Delete",
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

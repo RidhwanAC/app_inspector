@@ -5,15 +5,14 @@ import '../models/inspection.dart';
 class DatabaseHelper {
   static Database? _db;
 
+  // Get database if not initialized
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await _initDb();
     return _db!;
   }
 
-  // ========================
-  // DATABASE INITIALIZATION
-  // ========================
+  // Initialize database
   Future<Database> _initDb() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'inspection.db');
@@ -21,9 +20,7 @@ class DatabaseHelper {
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
-  // ========================
-  // TABLE CREATION
-  // ========================
+  // Create database
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE tbl_inspections(
@@ -39,17 +36,13 @@ class DatabaseHelper {
     ''');
   }
 
-  // ========================
-  // INSERT INSPECTION
-  // ========================
+  // Add inspection
   Future<int> insertInspection(Inspection inspection) async {
     final db = await database;
     return await db.insert('tbl_inspections', inspection.toMap());
   }
 
-  // ========================
-  // GET ALL INSPECTIONS
-  // ========================
+  // Get all inspections
   Future<List<Inspection>> getInspections() async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query(
@@ -60,17 +53,13 @@ class DatabaseHelper {
     return result.map((e) => Inspection.fromMap(e)).toList();
   }
 
-  // ========================
-  // DELETE INSPECTION
-  // ========================
+  // Delete inspection
   Future<int> deleteInspection(int id) async {
     final db = await database;
     return await db.delete('tbl_inspections', where: 'id = ?', whereArgs: [id]);
   }
 
-  // ========================
-  // UPDATE INSPECTION
-  // ========================
+  // Update inspection
   Future<int> updateInspection(Inspection inspection) async {
     final db = await database;
     return await db.update(

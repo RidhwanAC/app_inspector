@@ -14,19 +14,42 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
 
   Future<void> login() async {
-    if (usernameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please enter your name")));
+    String input = usernameController.text.trim();
+
+    // Empty Field Validation
+    if (input.isEmpty) {
+      _showError("Please enter your username");
       return;
     }
-    await SessionManager.login(usernameController.text.trim());
+
+    // Username Validation
+    if (!SessionManager.validateUser(input)) {
+      _showError("Invalid Username. Access Denied.");
+      return;
+    }
+
+    // Login on Success
+    await SessionManager.login(input);
+
+    // Navigation
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, _, _) => const HomeScreen(),
         transitionsBuilder: (_, anim, _, child) =>
             FadeTransition(opacity: anim, child: child),
+      ),
+    );
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(milliseconds: 1500),
       ),
     );
   }
@@ -77,11 +100,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Column(
                       children: [
+                        // Set MaxLength to 30 - avoid overflow
                         TextField(
                           controller: usernameController,
+                          maxLength: 30,
                           decoration: const InputDecoration(
                             hintText: "Enter Inspector ID/Name",
                             prefixIcon: Icon(Icons.person_outline),
+                            counterText: "",
                           ),
                         ),
                         const SizedBox(height: 20),
